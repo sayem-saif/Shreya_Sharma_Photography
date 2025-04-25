@@ -1,0 +1,168 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shreya Sharma Photography</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Arial', sans-serif; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .photo-card { transition: transform 0.3s; }
+    .photo-card:hover { transform: scale(1.05); }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="bg-gray-800 text-white p-4 sticky top-0 z-10">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Shreya Sharma Photography</h1>
+      <ul class="flex space-x-6">
+        <li><a href="#home" class="hover:text-gray-300">Home</a></li>
+        <li><a href="#gallery" class="hover:text-gray-300">Gallery</a></li>
+        <li><a href="#about" class="hover:text-gray-300">About</a></li>
+        <li><a href="#services" class="hover:text-gray-300">Services</a></li>
+        <li><a href="#contact" class="hover:text-gray-300">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Home Section -->
+  <section id="home" class="h-screen bg-cover bg-center flex items-center justify-center" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+    <div class="text-center text-white bg-black bg-opacity-50 p-8 rounded">
+      <h2 class="text-4xl font-bold mb-4">Capturing Nature's Beauty</h2>
+      <p class="text-lg">Explore the world through Shreya Sharma's lens</p>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section id="gallery" class="py-16 bg-gray-100">
+    <div class="container mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-8">Gallery</h2>
+      <div class="gallery-grid px-4">
+        <div class="photo-card">
+          <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Mountain Landscape" class="w-full h-64 object-cover rounded shadow">
+          <p class="text-center mt-2">Mountain Landscape</p>
+        </div>
+        <div class="photo-card">
+          <img src="https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Forest Path" class="w-full h-64 object-cover rounded shadow">
+          <p class="text-center mt-2">Forest Path</p>
+        </div>
+        <div class="photo-card">
+          <img src="https://images.unsplash.com/photo-1516214104703-d870798883c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Lush Waterfall" class="w-full h-64 object-cover rounded shadow">
+          <p class="text-center mt-2">Forest Bed</p>
+        </div>
+        <div class="photo-card">
+          <img src="https://images.unsplash.com/photo-1517760444937-f6397edcbbcd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Sunset Beach" class="w-full h-64 object-cover rounded shadow">
+          <p class="text-center mt-2">Lush Waterfall</p>
+        </div>
+        <div class="photo-card">
+          <img src="https://images.unsplash.com/photo-1505761671935-60b3a7427bad?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Wildflowers" class="w-full h-64 object-cover rounded shadow">
+          <p class="text-center mt-2">City View</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-8">About Shreya Sharma</h2>
+      <div class="text-center">
+        <p class="text-lg mb-4">Shreya Sharma is a passionate nature photographer with over 10 years of experience capturing the beauty of the natural world. Her work has been featured in numerous exhibitions and publications.</p>
+        <p class="text-lg">Based in India, Shreya travels globally to document breathtaking landscapes, wildlife, and natural phenomena, aiming to inspire conservation and appreciation for our planet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-8">Services</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded shadow">
+          <h3 class="text-xl font-semibold mb-4">Print Sales</h3>
+          <p>High-quality prints of Shreya's photographs, available in various sizes and formats for home or office decor.</p>
+        </div>
+        <div class="bg-white p-6 rounded shadow">
+          <h3 class="text-xl font-semibold mb-4">Photography Workshops</h3>
+          <p>Join Shreya for hands-on workshops to learn nature photography techniques in stunning locations.</p>
+        </div>
+        <div class="bg-white p-6 rounded shadow">
+          <h3 class="text-xl font-semibold mb-4">Custom Commissions</h3>
+          <p>Hire Shreya for bespoke photography projects, including commercial shoots or personal collections.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-8">Contact</h2>
+      <div class="max-w-md mx-auto">
+        <div class="mb-4">
+          <label class="block text-lg mb-2" for="name">Name</label>
+          <input type="text" id="name" class="w-full p-2 border rounded" placeholder="Your Name">
+        </div>
+        <div class="mb-4">
+          <label class="block text-lg mb-2" for="email">Email</label>
+          <input type="email" id="email" class="w-full p-2 border rounded" placeholder="Your Email">
+        </div>
+        <div class="mb-4">
+          <label class="block text-lg mb-2" for="message">Message</label>
+          <textarea id="message" class="w-full p-2 border rounded" rows="5" placeholder="Your Message"></textarea>
+        </div>
+        <button class="bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-700">Send Message</button>
+      </div>
+      <p class="text-center mt-8">Email: contact@shreyasharmaphoto.com | Phone: +91 9876543210</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-4">
+    <div class="container mx-auto text-center">
+      <p>© 2025 Shreya Sharma Photography. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
